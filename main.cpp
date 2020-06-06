@@ -77,9 +77,6 @@ int main() {
             }
         });
         cout << voc[score[0].first].first << '\n';
-/*        cout << score[0].second << ' ' << voc[score[0].first].first << ' ' << voc[score[0].first].second << '\n';
-        cout << score[1].second << ' ' << voc[score[1].first].first << ' ' << voc[score[1].first].second << '\n';
-        cout << score[2].second << ' ' << voc[score[2].first].first << ' ' << voc[score[2].first].second << '\n'; */
     }
     return 0;
 }   
