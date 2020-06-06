@@ -13,7 +13,7 @@ int main() {
     ifstream file("count_big.txt");
     string line;
     vector<pair<string, uint64_t>> voc;
-    int d, szz;
+    int d;
     while (getline(file, line)) {
         d = 0;
         for (size_t l = 0, sz = line.length(); l < sz; ++l) {
@@ -26,23 +26,31 @@ int main() {
     }
     file.close();
 
+    vector<unordered_set<string>> id_bigram(voc.size());
     unordered_map<string, unordered_set<uint64_t>> bigram;
+    string bt;
     for (size_t i = 0, sz = voc.size(); i < sz; ++i) {
-        szz = voc[i].first.size();
-        if (szz == 1) bigram[voc[i].first].insert(i);
-        for (size_t j = 0, size = szz - 1; j < size; ++j) {
-            bigram[voc[i].first.substr(j, 2)].insert(i);
+        if (voc[i].first.size() == 1) {
+            bigram[voc[i].first].insert(i);
+            id_bigram[i].insert(voc[i].first);
+        }
+        for (size_t j = 0, size = voc[i].first.size() - 1; j < size; ++j) {
+            bt = voc[i].first.substr(j, 2);
+            bigram[bt].insert(i);
+            id_bigram[i].insert(bt);
         }
     }
 
-    string word, tword;
-    unordered_set<string> bword, uword;
+    string word;
+    unordered_set<string> bword;
+    vector<pair<uint64_t, double>> score;
     while (cin >> word) {
+        score.resize(voc.size());
+        fill(score.begin(), score.end(), make_pair(0, 0));
         if (word.length() == 1) {
             cout << word << '\n';
             continue;
         }
-        vector<pair<uint64_t, double>> score(voc.size(), make_pair(0, 0));
         for (size_t j = 0, len = word.length() - 1; j < len; ++j) {
             bword.insert(word.substr(j, 2));
         }
@@ -53,8 +61,7 @@ int main() {
             }
         }
         for (auto &it : score) {
-            tword = word + voc[it.first].first;
-            it.second = static_cast<double>(it.second) / bword.size() - it.second + 1;
+            it.second = static_cast<double>(it.second) / (bword.size() - it.second + id_bigram[it.first].size());
         }
         bword.clear();
         sort(score.begin(), score.end(), [&voc](const auto &a, const auto &b) -> bool {
@@ -71,8 +78,9 @@ int main() {
             }
         });
         cout << voc[score[0].first].first << '\n';
-//        cout << score[0].second << ' ' << voc[score[0].first].first << ' ' << voc[score[0].first].second << '\n';
-//        cout << score[1].second << ' ' << voc[score[1].first].first << ' ' << voc[score[1].first].second << '\n';
+/*        cout << score[0].second << ' ' << voc[score[0].first].first << ' ' << voc[score[0].first].second << '\n';
+        cout << score[1].second << ' ' << voc[score[1].first].first << ' ' << voc[score[1].first].second << '\n';
+        cout << score[2].second << ' ' << voc[score[2].first].first << ' ' << voc[score[2].first].second << '\n'; */
         score.clear();
     }
     return 0;
