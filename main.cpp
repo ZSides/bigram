@@ -43,9 +43,8 @@ int main() {
 
     string word;
     unordered_set<string> bword;
-    vector<pair<uint64_t, double>> score;
+    vector<pair<uint64_t, double>> score(voc.size());
     while (cin >> word) {
-        score.resize(voc.size());
         fill(score.begin(), score.end(), make_pair(0, 0));
         if (word.length() == 1) {
             cout << word << '\n';
@@ -81,7 +80,6 @@ int main() {
 /*        cout << score[0].second << ' ' << voc[score[0].first].first << ' ' << voc[score[0].first].second << '\n';
         cout << score[1].second << ' ' << voc[score[1].first].first << ' ' << voc[score[1].first].second << '\n';
         cout << score[2].second << ' ' << voc[score[2].first].first << ' ' << voc[score[2].first].second << '\n'; */
-        score.clear();
     }
     return 0;
 }   
