@@ -1,0 +1,79 @@
+﻿#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <fstream>
+#include <unordered_map>
+#include <unordered_set>
+#define max(a, b) (a > b ? a : b)
+
+using namespace std;
+
+int main() {
+    ifstream file("count_big.txt");
+    string line;
+    vector<pair<string, uint64_t>> voc;
+    int d, szz;
+    while (getline(file, line)) {
+        d = 0;
+        for (size_t l = 0, sz = line.length(); l < sz; ++l) {
+            if (isspace(line[l])) {
+                voc.push_back(make_pair(line.substr(0, l), stoi(line.substr(l + 1, sz - l + 1))));
+                break;
+            }
+        }
+        ++d;
+    }
+    file.close();
+
+    unordered_map<string, unordered_set<uint64_t>> bigram;
+    for (size_t i = 0, sz = voc.size(); i < sz; ++i) {
+        szz = voc[i].first.size();
+        if (szz == 1) bigram[voc[i].first].insert(i);
+        for (size_t j = 0, size = szz - 1; j < size; ++j) {
+            bigram[voc[i].first.substr(j, 2)].insert(i);
+        }
+    }
+
+    string word, tword;
+    unordered_set<string> bword, uword;
+    while (cin >> word) {
+        if (word.length() == 1) {
+            cout << word << '\n';
+            continue;
+        }
+        vector<pair<uint64_t, double>> score(voc.size(), make_pair(0, 0));
+        for (size_t j = 0, len = word.length() - 1; j < len; ++j) {
+            bword.insert(word.substr(j, 2));
+        }
+        for (auto b : bword) {
+            for (auto it : bigram[b]) {
+                score[it].first = it;
+                score[it].second += 1;
+            }
+        }
+        for (auto &it : score) {
+            tword = word + voc[it.first].first;
+            it.second = static_cast<double>(it.second) / bword.size() - it.second + 1;
+        }
+        bword.clear();
+        sort(score.begin(), score.end(), [&voc](const auto &a, const auto &b) -> bool {
+            if (a.second == b.second) {
+                if (voc[a.first].second == voc[b.first].second) {
+                    return voc[a.first].first < voc[b.first].first;
+                }
+                else {
+                    return voc[a.first].second > voc[b.first].second;
+                }
+            }
+            else {
+                return a.second > b.second;
+            }
+        });
+        cout << voc[score[0].first].first << '\n';
+//        cout << score[0].second << ' ' << voc[score[0].first].first << ' ' << voc[score[0].first].second << '\n';
+//        cout << score[1].second << ' ' << voc[score[1].first].first << ' ' << voc[score[1].first].second << '\n';
+        score.clear();
+    }
+    return 0;
+}   
